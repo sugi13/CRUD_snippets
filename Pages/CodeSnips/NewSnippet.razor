@@ -1,0 +1,175 @@
+﻿@using CRUDWithFluxor.Pages.Components
+@using CRUDWithFluxor.models.Snippets
+@using CRUDWithFluxor.Features.Snippets
+@using CRUDWithFluxor.Services
+
+@inject IDispatcher Dispatcher
+@inject IState<SnippetState> snippetState
+
+<DxPopup @bind-Visible="@IsVisible"
+         HeaderText="@(IsEditMode ? "Edit Snippet" : "Add New")"
+         Width="100vh"
+         ShowFooter="true"
+         CssClass="container-fluid"
+         HeaderCssClass="bg-light text-dark font-weight-bold ps-3 py-3 border-bottom">
+
+    <BodyTemplate Context="PopupBodyContext">
+
+        <div>
+
+            <EditForm Model="@_snippetModel"
+                      Context="newSnippetContext"
+                      OnValidSubmit="HandleSave">
+
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <DxFormLayout CssClass="w-100 p-3">
+
+                    <CustomTextBox @bind-Value="_snippetModel.Title"
+                                   Placeholder="eg: filter method"
+                                   ValidationExpression="() => _snippetModel.Title"
+                                   Label="Title:" />
+
+                    <CustomTextBox @bind-Value="_snippetModel.Language"
+                                   Placeholder="eg: JavaScript"
+                                   ValidationExpression="() => _snippetModel.Language"
+                                   Label="Language:" />
+
+                    <CustomTextBox @bind-Value="_snippetModel.Category"
+                                   Placeholder="eg: SQL.."
+                                   ValidationExpression="() => _snippetModel.Category"
+                                   Label="Category:" />
+
+                    <CustomTextBox @bind-Value="_snippetModel.Tags"
+                                   Placeholder="eg: search method"
+                                   ValidationExpression="() => _snippetModel.Tags"
+                                   Label="Tags:" />
+
+                    <CustomTextarea @bind-Value="_snippetModel.Code"
+                                    ValidationExpression="() => _snippetModel.Code"
+                                    Label="Add Code"
+                                    Placeholder="add your snippet code here..."
+                                    Rows="5" />
+
+                </DxFormLayout>
+
+            </EditForm>
+
+        </div>
+
+    </BodyTemplate>
+
+    <FooterTemplate Context="footerContext">
+
+        <div class="d-flex justify-content-end w-100 p-2 gap-2">
+
+            <DxButton Text="Cancel"
+                      RenderStyle="ButtonRenderStyle.None"
+                      Click="ClosePopup" />
+
+            <DxButton Text="@(IsEditMode ? "Update" : "Save")"
+                      SubmitFormOnClick="true" />
+
+        </div>
+
+    </FooterTemplate>
+
+</DxPopup>
+
+
+@code {
+
+    public bool IsVisible { get; set; } = false;
+
+    private bool IsEditMode { get; set; } = false;
+
+    private SnippetModel _snippetModel = new();
+
+
+    // ADD
+    public void OpenPopup()
+    {
+        IsEditMode = false;
+
+        _snippetModel = new SnippetModel();
+
+        IsVisible = true;
+
+        StateHasChanged();
+    }
+
+
+    // EDIT
+    public void OpenPopup(SnippetModel snippet)
+    {
+        IsEditMode = true;
+
+        // Create a copy so we don't directly modify
+        // the object inside Fluxor state.
+        _snippetModel = new SnippetModel
+        {
+            snippet_Id = snippet.snippet_Id,
+            Title = snippet.Title,
+            Language = snippet.Language,
+            Category = snippet.Category,
+            Tags = snippet.Tags,
+            Code = snippet.Code
+        };
+
+        IsVisible = true;
+
+        StateHasChanged();
+    }
+
+
+    private async Task HandleSave()
+    {
+        // Create a clean copy of the form data
+        var payload = new SnippetModel
+        {
+            snippet_Id = _snippetModel.snippet_Id,
+            Title = _snippetModel.Title,
+            Language = _snippetModel.Language,
+            Category = _snippetModel.Category,
+            Tags = _snippetModel.Tags,
+            Code = _snippetModel.Code
+        };
+
+
+        if (IsEditMode)
+        {
+            // UPDATE
+            Dispatcher.Dispatch(
+                new UpdateProductAction(payload)
+            );
+        }
+        else
+        {
+            // ADD
+            Dispatcher.Dispatch(
+                new AddProductAction(payload)
+            );
+        }
+
+
+        // Reset form
+        _snippetModel = new SnippetModel();
+
+        IsEditMode = false;
+
+        IsVisible = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    private void ClosePopup()
+    {
+        IsVisible = false;
+
+        _snippetModel = new SnippetModel();
+
+        IsEditMode = false;
+    }
+}

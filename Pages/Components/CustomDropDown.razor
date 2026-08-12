@@ -1,0 +1,57 @@
+﻿@typeparam TItem
+@typeparam TValue
+@using System.Linq.Expressions;
+
+
+
+<DxFormLayoutItem BeginRow="true" ColSpanLg="12">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label>@Label</label>
+    }
+    <DxComboBox Data="@Data"
+                Value="@Value"
+                ValueChanged="@((TValue val) => OnValueChanged(val))"
+                ValueExpression="@ValueExpression"
+                TextFieldName="@TextFieldName"
+                ValueFieldName="@ValueFieldName"
+                Placeholder="@Placeholder"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                CssClass="@CssClass">
+
+    </DxComboBox>
+</DxFormLayoutItem>
+
+@code {
+    // data binding//
+    [Parameter] public IEnumerable<TItem> Data { get; set; }
+    [Parameter] public TValue Value { get; set; }
+    [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
+    [Parameter] public System.Linq.Expressions.Expression<Func<TValue>> ValueExpression { get; set; }
+
+    // custom params
+    [Parameter] public string Label { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Select an option...";
+    [Parameter] public string TextFieldName { get; set; }
+    [Parameter] public string ValueFieldName { get; set; }
+    [Parameter] public string CssClass { get; set; }
+
+    private async Task OnValueChanged(TValue newValue)
+    {
+        Value = newValue;
+        await ValueChanged.InvokeAsync(newValue);
+    }
+
+    private string GetDisplayText(TItem item)
+    {
+        if (item == null) return string.Empty;
+        if (!string.IsNullOrEmpty(TextFieldName))
+        {
+            var prop = typeof(TItem).GetProperty(TextFieldName);
+            return prop?.GetValue(item)?.ToString() ?? item.ToString();
+        }
+        return item.ToString();
+    }
+
+    // dropdown focuses on Tvalue i.e: not the text, its the Id.
+}

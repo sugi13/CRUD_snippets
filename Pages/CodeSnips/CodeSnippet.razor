@@ -1,0 +1,91 @@
+﻿@page "/snippets"
+@using CRUDWithFluxor.Pages;
+@using CRUDWithFluxor.Features.Snippets;
+@using CRUDWithFluxor.models.Snippets;
+
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+@inject IDispatcher Dispatcher;
+@inject IState<SnippetState> snippetState;
+
+<div class="d-flex justify-content-md-around align-items-center mb-4">
+    <div>
+        <h4>Product lists</h4>
+    </div>
+    <DxButton Text="Add product" Click="OpenForCreate" RenderStyle="ButtonRenderStyle.Dark" style="text-decoration:none;"/>
+</div>
+
+@*add if statement here!*@
+
+
+<DxGrid Data="@snippetState.Value.Products" ShowSearchBox ="true" AllowSort ="true" AllowDragRows ="true" >
+    <Columns>
+        <DxGridDataColumn FieldName="Title" Caption="Title" CaptionAlignment="GridTextAlignment.Center" TextAlignment="GridTextAlignment.Center" />
+        <DxGridDataColumn FieldName="Language" Caption="Language" CaptionAlignment="GridTextAlignment.Center" TextAlignment="GridTextAlignment.Center" />
+        <DxGridDataColumn FieldName="Category" Caption="Category" CaptionAlignment="GridTextAlignment.Center" TextAlignment="GridTextAlignment.Center" />
+        <DxGridDataColumn FieldName="Tags" Caption="Tags" CaptionAlignment="GridTextAlignment.Center" TextAlignment="GridTextAlignment.Center" />
+        <DxGridDataColumn FieldName="Code" Caption="Code" CaptionAlignment="GridTextAlignment.Center" TextAlignment="GridTextAlignment.Center" />
+
+        <DxGridDataColumn FieldName="Action" Caption="Action" CaptionAlignment="GridTextAlignment.Center" TextAlignment="GridTextAlignment.Center">
+            <CellDisplayTemplate Context="cellContext">
+                @{
+                    var snippet = (SnippetModel)cellContext.DataItem;
+                }
+
+                <DxButton RenderStyle="ButtonRenderStyle.Info"
+                          RenderStyleMode="ButtonRenderStyleMode.Text"
+                          Text="Edit" Click="@(() => EditSnippet(snippet))"/>
+
+                <DxButton RenderStyle="ButtonRenderStyle.Danger"
+                          RenderStyleMode="ButtonRenderStyleMode.Text"
+                          Text="Delete" Click="@(() => DeleteSnippet(snippet.snippet_Id))" />
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+ 
+    </Columns>
+</DxGrid>
+
+
+
+<NewSnippet @ref="_newSnippet" />
+
+
+@code {
+
+    bool IsAddSnippetPopupVisible { get; set; } = false;
+
+    private NewSnippet? _newSnippet = new(); // reference to the instance
+
+    private SnippetModel snippetModel = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Dispatcher.Dispatch(new LoadProductAction());
+    }
+
+    private void OpenForCreate()
+    {
+        //IsAddSnippetPopupVisible = true;
+        _newSnippet.OpenPopup();
+
+    }
+
+    private void EditSnippet(SnippetModel snippet)
+    {
+        _newSnippet.OpenPopup(snippet);
+    }
+
+    
+    // code for deletion //
+
+    private void DeleteSnippet(int id)
+    {
+        Dispatcher.Dispatch(new DeleteProductAction(id));
+        // this deleteSnippet dispatch an action with id = 1
+    }
+
+
+    }
+
+}

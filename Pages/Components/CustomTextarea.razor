@@ -1,0 +1,38 @@
+﻿@using System.Linq.Expressions
+
+<DxFormLayoutItem BeginRow="true" ColSpanLg="12">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label>@Label</label>
+    }
+    <DxMemo Text="@Value"
+            TextChanged="OnInternalChanged"
+            TextExpression="ValidationExpression"
+            NullText="@Placeholder"
+            Rows="@Rows"
+            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+            BindValueMode="BindValueMode.OnInput" />
+    
+    @if (ValidationExpression != null)
+    {
+        <ValidationMessage For="@ValidationExpression" />
+    }
+</DxFormLayoutItem>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public string Placeholder { get; set; } = string.Empty;
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public int Rows { get; set; } = 3;
+
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    // CRITICAL: DevExpress requires this parameter for EditForm integration
+    [Parameter] public Expression<Func<string?>>? ValidationExpression { get; set; }
+
+    private async Task OnInternalChanged(string? value)
+    {
+        Value = value;
+        await ValueChanged.InvokeAsync(value);
+    }
+}

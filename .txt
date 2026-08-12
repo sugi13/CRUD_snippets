@@ -1,0 +1,172 @@
+Models to add:
+ 1. Title -> about the code. - textbox
+ 2. language -> JS, c# - use dropdown[combobox]
+ 3. Category -> API, DB, auth etc. - use dropdown[combobox]
+ 4. Description -> about the code  
+ 5. Code -> paste code snippet - use textarea[memo]
+
+
+
+ @(async (TValue? newValue) => await OnInternalValueChanged(newValue))
+
+
+ conversion code.
+
+ @using System.Linq.Expressions
+@using DevExpress.Blazor
+@using Microsoft.AspNetCore.Components
+
+@typeparam V
+
+<DxFormLayoutItem BeginRow="true" ColSpanMd="12">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="mb-1">@Label</label>
+    }
+
+    <DxTextBox Text="@ValueAsString"
+               TextChanged="@OnInternalValueChanged"
+               ReadOnly="@isReadOnly"
+               Password="@isPassword"
+               NullText="@Placeholder"
+               autocomplete="off" />
+
+</DxFormLayoutItem>
+
+@code {
+    // Two-way Binding Parameters
+
+    [Parameter] public V? Value { get; set; }
+
+    [Parameter] public EventCallback<V?> ValueChanged { get; set; }
+
+    [Parameter] public Expression<Func<V?>>? ValidationExpression { get; set; }
+
+   
+    // Customization Parameters
+
+    [Parameter] public bool isReadOnly { get; set; } = false;
+
+    [Parameter] public bool isPassword { get; set; } = false;
+
+    [Parameter] public string InputCss { get; set; } = "";
+
+    [Parameter] public bool IsValidationEnable { get; set; } = true;
+
+    [Parameter] public string? Label { get; set; }
+
+    [Parameter] public string? Placeholder { get; set; }
+
+    // Convert current value to string
+
+    private string? ValueAsString => Value?.ToString();
+
+    // Handles textbox changes
+
+    private async Task OnInternalValueChanged(string? newValue)
+    {
+        // Avoid unnecessary updates
+        if (string.Equals(ValueAsString, newValue ?? string.Empty)) // check if the new value is the same type e.g:string.
+            return;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(newValue)) // check is there any whitespace or null value submission, e.g: "";
+            {
+                Value = default;
+            }
+            else if (typeof(V) == typeof(string)) // check if the type is string, then assign directly
+            {
+                Value = (V)(object)newValue;
+            }
+            else
+            {
+                var targetType = Nullable.GetUnderlyingType(typeof(V)) ?? typeof(V);
+
+                Value = (V?)Convert.ChangeType(newValue, targetType);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            return;
+        }
+
+        // Notify parent component
+        if (ValueChanged.HasDelegate)
+        {
+            await ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+}
+
+code for word count
+
+@if(MaxLength > 0 && ShowCharacterCount)
+    {
+        <small class="text-muted">
+            @(Value?.ToString()?.Length ?? 0) / @MaxLength
+        </small>
+    }
+
+
+
+
+
+
+
+
+
+
+
+    using CRUDWithFluxor.Features.Snippets;
+using CRUDWithFluxor.models.Snippets;
+using CRUDWithFluxor.Services;
+using Fluxor;
+
+
+namespace CRUDWithFluxor.Features.Snippets
+{
+    public class SnippetEffect
+
+    {
+        private const string storageKey = "products";
+
+        private readonly LocalStorageService _localStorage;
+
+        public SnippetEffect(LocalStorageService localStorage)
+        {
+            _localStorage = localStorage;
+        }
+
+        // load data 
+        [EffectMethod]
+        public async Task LoadProducts(LoadProductAction action, IDispatcher dispatcher)
+        {
+            var products = await _localStorage.GetItemAsync<List<SnippetModel>>(storageKey);
+
+            products ??= new List<SnippetModel>();
+
+            dispatcher.Dispatch(new ProductLoadedAction(products));
+
+            Console.WriteLine("ADD EFFECT CALLED");
+        }
+
+        [EffectMethod]
+        // add data
+        public async Task AddProduct(AddProductAction action, IDispatcher dispatcher)
+        {
+
+            await _localStorage.SetItemAsync(storageKey, action.
+                Product);
+        }
+
+    }
+}
+
+
+
+
+
+

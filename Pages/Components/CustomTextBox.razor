@@ -1,0 +1,42 @@
+﻿@using System.Linq.Expressions
+
+<DxFormLayoutItem BeginRow="true" ColSpanLg="12">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label>@Label</label>
+    }
+    <DxTextBox Text="@Value"
+               TextChanged="OnInternalChanged"
+               TextExpression="ValidationExpression"
+               NullText="@Placeholder"
+               BindValueMode="BindValueMode.OnInput"
+               ValidationEnabled="true" />
+
+    @if (ValidationExpression != null)
+    {
+        <ValidationMessage For="@ValidationExpression" />
+    }
+</DxFormLayoutItem>
+
+@code {
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter] public string Placeholder { get; set; } = string.Empty;
+
+    [Parameter] public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    // Use non-nullable Func<string> for Blazor validation compatibility
+    [Parameter]
+    public Expression<Func<string>>? ValidationExpression { get; set; }
+
+    private async Task OnInternalChanged(string? value)
+    {
+        Value = value;
+        await ValueChanged.InvokeAsync(value);
+    }
+}

@@ -1,0 +1,59 @@
+@page "/users";
+@using CRUDWithFluxor.Features.Users;
+
+@inject IDispatcher Dispatcher
+
+@inject IState<UserState> UserState // 8.
+
+<h3>Users List</h3>
+
+<p>Count: @UserState.Value.Users.Count()</p>
+
+
+<DxGrid Data="@UserState.Value.Users" 
+        ShowSearchBox="true"
+        AllowSort="false"
+        AllowDragRows="false"
+        VirtualScrollingEnabled="true"
+        ShowAllRows="true"
+        PageSizeSelectorVisible="true">
+    <Columns>
+        <DxGridDataColumn FieldName="CarName" Caption="Car Name"/>
+        <DxGridDataColumn FieldName="Car_Variant" Caption="Car variant" />
+    </Columns>
+</DxGrid>
+
+
+<DxFormLayout CaptionPosition="CaptionPosition.Horizontal">
+   <DxFormLayoutItem Caption="Car Name">
+        <DxTextBox @bind-Text="newUserName"/>
+   </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Car Variant">
+        <DxTextBox @bind-Text="newCarVariant" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem>
+        <DxButton Click="Add" Text="Add User" />
+    </DxFormLayoutItem>
+</DxFormLayout>
+
+@code {
+    private string newUserName = "";
+
+    private string newCarVariant = "";
+
+    protected override void OnInitialized()
+    {
+        Dispatcher.Dispatch(new UserActions.FetchUserAction());
+    }
+
+    private void Add() {
+        var newUser = new models.Cars.CarDetailModel
+        {
+            CarName = newUserName,
+            Car_Variant = newCarVariant
+        };
+        // 1.
+        Dispatcher.Dispatch(new UserActions.CreateUserSuccessAction(newUser));
+    }
+
+}
