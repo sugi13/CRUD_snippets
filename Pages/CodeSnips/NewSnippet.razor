@@ -19,7 +19,7 @@
 
             <EditForm Model="@_snippetModel"
                       Context="newSnippetContext"
-                      OnValidSubmit="HandleSave">
+                      >
 
                 <DataAnnotationsValidator />
                 <ValidationSummary />
@@ -39,7 +39,7 @@
                     <CustomTextBox @bind-Value="_snippetModel.Category"
                                    Placeholder="eg: SQL.."
                                    ValidationExpression="() => _snippetModel.Category"
-                                   Label="Category:" />
+                                   Label="Category:" /> 
 
                     <CustomTextBox @bind-Value="_snippetModel.Tags"
                                    Placeholder="eg: search method"
@@ -69,7 +69,7 @@
                       Click="ClosePopup" />
 
             <DxButton Text="@(IsEditMode ? "Update" : "Save")"
-                      SubmitFormOnClick="true" />
+                      Click="HandleSave"/>
 
         </div>
 
@@ -125,6 +125,8 @@
 
     private async Task HandleSave()
     {
+
+
         // Create a clean copy of the form data
         var payload = new SnippetModel
         {
@@ -136,20 +138,24 @@
             Code = _snippetModel.Code
         };
 
+       
+
 
         if (IsEditMode)
         {
-            // UPDATE
+           //  UPDATE
             Dispatcher.Dispatch(
-                new UpdateProductAction(payload)
-            );
+            new UpdateProductAction(payload)
+        );
         }
         else
         {
+
             // ADD
             Dispatcher.Dispatch(
                 new AddProductAction(payload)
             );
+            
         }
 
 

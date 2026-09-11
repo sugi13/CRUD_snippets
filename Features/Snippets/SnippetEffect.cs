@@ -1,6 +1,7 @@
 ﻿using CRUDWithFluxor.models.Snippets;
 using CRUDWithFluxor.Services;
 using Fluxor;
+using Serilog;
 
 namespace CRUDWithFluxor.Features.Snippets;
 
@@ -10,9 +11,12 @@ public class SnippetEffect
 
     private readonly LocalStorageService _localStorage;
 
-    public SnippetEffect(LocalStorageService localStorage)
+    private readonly ILogger<SnippetEffect> _logger; // it tells logging system that, logs comes from the SnippetEffect class
+
+    public SnippetEffect(LocalStorageService localStorage, ILogger<SnippetEffect> logger)
     {
         _localStorage = localStorage;
+        _logger = logger;
     }
 
     // LOAD PRODUCTS
@@ -33,10 +37,20 @@ public class SnippetEffect
 
             dispatcher.Dispatch(
                 new ProductLoadedAction(products));
+
+            // log info
+           _logger.LogInformation("Snippets loaded from local storage. Count: {Count}", products.Count);
+
+            // using serilog
+            // Log.Information("Snippets loaded from local storage. Count: {Count}", products.Count);
+
         }
         catch(Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            // using Ilogger
+            _logger.LogError(ex, "Failed to load snippets from local storage.");
+            // using SeriLog
+            // Log.Error(ex, "Failed to load snippets from local storage.");
         }
     }
 
@@ -63,10 +77,18 @@ public class SnippetEffect
             await _localStorage.SetItemAsync(
                 storageKey,
                 products);
+
+            // logging info
+            _logger.LogInformation("Snippet added to local storage. Snippet ID: {SnippetId}", action.Product.snippet_Id);
+
+            // using SeriLog
+            // Log.Information("Snippet added to Local Storage.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"{ex.Message}", ex);
+            _logger.LogError("Failed to add snippet to local storage. Error: {ErrorMessage}", ex.Message);
+
+           // Log.Error("Failed to add Snippet to local storage. Error: {ErrorMessage}", ex) ;
         }
     }
 

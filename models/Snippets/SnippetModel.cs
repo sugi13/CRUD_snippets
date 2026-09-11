@@ -10,10 +10,10 @@ namespace CRUDWithFluxor.models.Snippets
         public string Title { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Language is required")]
-        public string Language { get; set; } = string.Empty;
+        public string Language { get; set; } = "";
 
         [Required(ErrorMessage = "Category is required")]
-        public string Category { get; set; } = string.Empty;
+        public string Category { get; set; } = "";
 
         public string Tags { get; set; } = string.Empty;
 
@@ -22,6 +22,18 @@ namespace CRUDWithFluxor.models.Snippets
 
         [Required(ErrorMessage = "Code is required")]
         public string Code { get; set; } = string.Empty;
+    }
+
+    public class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+    }
+
+    public class Language
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
     }
 
 }

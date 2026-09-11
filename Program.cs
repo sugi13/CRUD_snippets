@@ -5,6 +5,7 @@ using CRUDWithFluxor.Services;
 using Fluxor;
 using Fluxor.Blazor.Web.ReduxDevTools;
 using Blazored.LocalStorage;
+using Serilog;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -23,6 +24,14 @@ builder.Services.AddFluxor(options =>
     options.ScanAssemblies(typeof(Program).Assembly);
     options.UseReduxDevTools();
 });
+
+// adding serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.BrowserConsole()
+    .CreateLogger();
+
+Log.Information("Application Started!");
 
 
 // services 
