@@ -1,0 +1,54 @@
+﻿@typeparam TData
+@typeparam TValue
+@using System.Linq.Expressions;
+
+
+<DxFormLayoutItem BeginRow="true" ColSpanLg="12">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label>@Label</label>
+    }
+    <DxRadioGroup TData="string"
+                  TValue="string"
+                  Items="@Items"
+                  Value="@Value"
+                  ValueChanged="@OnValueChanged"
+                  ValueExpression="@ValueExpression"
+                  Layout="@Layout"
+                  CssClass="@CssClass" />
+</DxFormLayoutItem>
+
+@code  {
+
+    [Parameter] public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public IEnumerable<string> Items { get; set; }
+      = Enumerable.Empty<string>();
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter] public Expression<Func<string>>? ValueExpression { get; set; }
+
+    [Parameter]
+    public RadioGroupLayout Layout { get; set; }
+        = RadioGroupLayout.Horizontal;
+
+    [Parameter]
+    public string? CssClass { get; set; }
+
+
+    private async Task OnValueChanged(string? value)
+    {
+        Value = value;
+
+        if (ValueChanged.HasDelegate)
+        {
+            await ValueChanged.InvokeAsync(value);
+        }
+    }
+}

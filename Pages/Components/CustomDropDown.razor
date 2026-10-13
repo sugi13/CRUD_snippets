@@ -1,48 +1,63 @@
-﻿@typeparam TItem
+﻿@using System.Linq.Expressions
+@typeparam TData
 @typeparam TValue
-
-
 
 <DxFormLayoutItem BeginRow="true" ColSpanLg="12">
     @if (!string.IsNullOrWhiteSpace(Label))
     {
         <label>@Label</label>
     }
-    <DxComboBox Data="@Data"
-                TextFieldName="@TextField"
-                ValueFieldName="@ValueField"
-                @bind-Value="@Value"
-                ListRenderMode="ListRenderMode.Entire"
-                NullText="@Placeholder" />
+    <DxComboBox TData="TData"
+                TValue="TValue"
+                Data="@Data"
+                Value="@Value"
+                ValueChanged="@OnInternalChanged"
+                TextFieldName="@TextFieldName"
+                ValueExpression="@ValueExpression"
+                ValueFieldName="@ValueFieldName"
+                NullText="@NullText"
+                Enabled="@Enabled"
+                ReadOnly="@ReadOnly"
+                CssClass="@CssClass" />
 </DxFormLayoutItem>
-
-
 @code {
+
     [Parameter]
-    public IEnumerable<TItem> Data { get; set; } 
+    public IEnumerable<TData>? Data { get; set; }
 
     [Parameter]
     public TValue? Value { get; set; }
 
     [Parameter]
-    public string TextField { get; set; } = "";
-
-    [Parameter]
-    public string ValueField { get; set; } = "";
-
-    [Parameter]
-    public string Label { get; set; } = "";
-
-    [Parameter]
     public EventCallback<TValue?> ValueChanged { get; set; }
 
+    [Parameter] public string Label { get; set; } = string.Empty;
+
     [Parameter]
-    public string Placeholder { get; set; } = "Select...";
+    public string TextFieldName { get; set; } = string.Empty;
+
+    [Parameter] public Expression<Func<TValue?>>? ValueExpression { get; set; }
+
+    [Parameter]
+    public string ValueFieldName { get; set; } = string.Empty;
+
+    [Parameter]
+    public string NullText { get; set; } = "Select...";
+
+    [Parameter]
+    public bool Enabled { get; set; } = true;
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public string? CssClass { get; set; }
 
 
-    private async Task OnInternalValueChanged(TValue? newValue)
+    private async Task OnInternalChanged(TValue? value)
     {
-        Value = newValue;
-        await ValueChanged.InvokeAsync(Value);
+        Value = value;
+
+        await ValueChanged.InvokeAsync(value);
     }
 }

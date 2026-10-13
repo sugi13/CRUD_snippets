@@ -22,6 +22,10 @@ namespace CRUDWithFluxor.models.Snippets
 
         [Required(ErrorMessage = "Code is required")]
         public string Code { get; set; } = string.Empty;
+
+        public string? Difficulty { get; set; } = "Easy";
+
+        public bool isFavorite { get; set; } = false;
     }
 
     public class Category

@@ -18,8 +18,7 @@
         <div>
 
             <EditForm Model="@_snippetModel"
-                      Context="newSnippetContext"
-                      >
+                      Context="newSnippetContext">
 
                 <DataAnnotationsValidator />
                 <ValidationSummary />
@@ -31,20 +30,37 @@
                                    ValidationExpression="() => _snippetModel.Title"
                                    Label="Title:" />
 
-                    <CustomTextBox @bind-Value="_snippetModel.Language"
-                                   Placeholder="eg: JavaScript"
-                                   ValidationExpression="() => _snippetModel.Language"
-                                   Label="Language:" />
+                    <CustomDropDown TData="Language" 
+                                    TValue="string" 
+                                    Data="@Languages" 
+                                    @bind-Value="_snippetModel.Language" 
+                                     TextFieldName="Name" 
+                                     ValueFieldName="Name" 
+                                     NullText="Select Language..."
+                                     Label="Language"/>
 
-                    <CustomTextBox @bind-Value="_snippetModel.Category"
-                                   Placeholder="eg: SQL.."
-                                   ValidationExpression="() => _snippetModel.Category"
-                                   Label="Category:" /> 
+                    <CustomDropDown TData="Category"
+                                    TValue="string"
+                                    Data="@Categories"
+                                    @bind-Value="_snippetModel.Category"
+                                    TextFieldName="Name"
+                                    ValueFieldName="Name"
+                                    NullText="Select Category..."
+                                    Label="Category" /> 
+
+                    <CustomCheckBox Label="Favourite" @bind-Checked="_snippetModel.isFavorite" T="bool" />
 
                     <CustomTextBox @bind-Value="_snippetModel.Tags"
                                    Placeholder="eg: search method"
                                    ValidationExpression="() => _snippetModel.Tags"
                                    Label="Tags:" />
+
+                    <CustomRadioGroup TData="string"
+                                      TValue="string"
+                                      Items="@Difficulties"
+                                      @bind-Value="_snippetModel.Difficulty"
+                                      Layout="RadioGroupLayout.Horizontal"
+                                      CssClass="dx-demo-radio-group" Label="Difficulty:" />
 
                     <CustomTextarea @bind-Value="_snippetModel.Code"
                                     ValidationExpression="() => _snippetModel.Code"
@@ -83,8 +99,37 @@
     public bool IsVisible { get; set; } = false;
 
     private bool IsEditMode { get; set; } = false;
-
     private SnippetModel _snippetModel = new();
+
+    private List<Language> Languages = new()
+{
+    new() { Id = 1, Name = "C#" },
+    new() { Id = 2, Name = "JavaScript" },
+    new() { Id = 3, Name = "TypeScript" },
+    new() { Id = 4, Name = "Python" },
+    new() { Id = 5, Name = "Java" },
+    new() {Id = 6, Name = "C++" },
+    new() {Id = 7, Name = "C" },
+    new() {Id = 8, Name = "Go" },
+    new() {Id = 9, Name = "SQL" },
+};
+
+    private List<Category> Categories = new()
+{
+    new() { Id = 1, Name = "Blazor" },
+    new() { Id = 2, Name = "Backend" },
+    new() { Id = 3, Name = "Frontend" },
+    new() { Id = 4, Name = "Database" },
+    new() { Id = 5, Name = "DevOps" },
+    new() { Id = 6, Name = "General" }
+};
+
+    private IEnumerable<string> Difficulties = new[]
+    {
+       "Beginner",
+       "Intermediate",
+        "Advanced"
+   };
 
 
     // ADD

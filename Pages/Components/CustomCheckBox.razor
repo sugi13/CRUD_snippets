@@ -1,0 +1,33 @@
+﻿@typeparam T
+
+<DxFormLayoutItem BeginRow="true" ColSpanLg="12">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label>@Label</label>
+    }
+    <DxCheckBox T="T"
+                Checked="@Checked"
+                CheckedChanged="@OnCheckedChanged"
+                Enabled="@Enabled"
+                ValidationEnabled="@ValidationEnabled">
+        @Label
+    </DxCheckBox>
+</DxFormLayoutItem>
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+
+    [Parameter] public T Checked { get; set; } = default!;
+
+    [Parameter] public EventCallback<T> CheckedChanged { get; set; }
+
+    [Parameter] public bool Enabled { get; set; } = true;
+
+    [Parameter] public bool ValidationEnabled { get; set; } = false;
+
+    private async Task OnCheckedChanged(T value)
+    {
+        Checked = value;
+        await CheckedChanged.InvokeAsync(value);
+    }
+}

@@ -1,0 +1,35 @@
+﻿@page "/error-test"
+
+
+@inject ILogger<Home> Logger
+
+<h3>Serilog Error Logging Test</h3>
+
+<button class="btn btn-danger" @onclick="TestErrorLogging">
+    Generate Test Error
+</button>
+
+<p>@Message</p>
+
+@code {
+    private string Message = "";
+
+    private void TestErrorLogging()
+    {
+        try
+        {
+            throw new InvalidOperationException(
+                "This is a test error for Serilog logging."
+            );
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Test error occurred!");
+
+           // Logger.LogError("WASM TEST - Error sent from Blazor.");
+
+            Message = "Test error logged. Check your log file.";
+        }
+    }
+}
+
